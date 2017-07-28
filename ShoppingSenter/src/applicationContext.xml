@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="
+	http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+	http://www.springframework.org/schema/context 
+	http://www.springframework.org/schema/context/spring-context-4.0.xsd">
+	
+	<!-- 开启bean注解 -->
+	<context:component-scan base-package="pers.sl.shoppingsenter"></context:component-scan>
+	
+	<!-- 配置c3p0数据源 -->
+	<bean id="DataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+	   <property name="driverClass" value="com.mysql.jdbc.Driver"></property>
+	   <property name="jdbcUrl" value="jdbc:mysql:///shoppingsenter"></property>
+       <property name="user" value="root"></property>
+       <property name="password" value="root"></property>
+	</bean>
+	
+	<!-- 每一个Dao都需要配置注入dataSource，很麻烦感觉，不能用注解 -->
+	<bean id="BookDao" class="pers.sl.shoppingsenter.mapper.BookMapper">
+	   <property name="dataSource" ref="DataSource"></property>
+	</bean>
+	<bean id="BookOrderDao" class="pers.sl.shoppingsenter.mapper.BookOrderMapper">
+	   <property name="dataSource" ref="DataSource"></property>
+	</bean>
+	<bean id="UserDao" class="pers.sl.shoppingsenter.mapper.UserMapper">
+	   <property name="dataSource" ref="DataSource"></property>
+	</bean>
+	
+	
+	
+	
+	
+	
+	<!-- 配置Jndi数据源 -->
+	<!-- <bean id="DataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+	   <property name="jndiName" value="java:comp/env/jdbc/myJNDI"></property>
+	</bean> -->
+	
+</beans>
