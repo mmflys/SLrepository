@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/aop 
+	http://www.springframework.org/schema/aop/spring-aop.xsd
+	http://www.springframework.org/schema/tx
+    http://www.springframework.org/schema/tx/spring-tx.xsd">
+	<!-- 配置包扫描组件,不同包可用逗号隔开 -->
+	<context:component-scan base-package="per.sl.appsys"></context:component-scan>
+	<!-- 读取属性文件 -->
+	<context:property-placeholder location="classpath:database.properties" />
+	<!-- 数据源 -->
+	<bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource"
+		destroy-method="close" scope="singleton">
+		<property name="driverClassName" value="${driver}" />
+		<property name="url" value="${url}" />
+		<property name="username" value="${user}" />
+		<property name="password" value="${password}" />
+		<property name="initialSize" value="${initialSize}" />
+		<property name="maxTotal" value="${maxTotal}" />
+		<property name="maxIdle" value="${maxIdle}" />
+		<property name="minIdle" value="${minIdle}" />
+		<property name="maxWaitMillis" value="${maxWait}" />
+		<property name="removeAbandonedOnMaintenance" value="${removeAbandonedOnMaintenance}" />
+		<property name="removeAbandonedOnBorrow" value="${removeAbandonedOnBorrow}" />
+		<property name="removeAbandonedTimeout" value="${removeAbandonedTimeout}" />
+		<!-- Sql 心跳 -->
+		<property name="testWhileIdle" value="${testWhileIdle}" />
+		<property name="testOnBorrow" value="${testOnBorrow}" />
+		<property name="testOnReturn" value="${testOnReturn}" />
+		<property name="validationQuery" value="${validationQuery}" />
+		<property name="timeBetweenEvictionRunsMillis" value="${timeBetweenEvictionRunsMillis}" />
+		<property name="numTestsPerEvictionRun" value="${numTestsPerEvictionRun}" />
+	</bean>
+	<!-- 事务管理器 -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	<!-- 采用阿里巴巴方法命名标准 -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="find*" propagation="SUPPORTS"
+				rollback-for="Exception" />
+			<tx:method name="list*" propagation="SUPPORTS"
+				rollback-for="Exception" />
+			<tx:method name="count*" propagation="SUPPORTS"
+				rollback-for="Exception" />
+			<tx:method name="save*" propagation="REQUIRED"
+				rollback-for="Exception" />
+			<tx:method name="remove*" propagation="REQUIRED"
+				rollback-for="Exception" />
+			<tx:method name="update*" propagation="REQUIRED"
+				rollback-for="Exception" />
+		</tx:attributes>
+	</tx:advice>
+	<!-- Aop -->
+	<aop:aspectj-autoproxy />
+	<aop:config>
+		<aop:pointcut expression="execution(* per.sl.appsys.service..*(..))"
+			id="transService" />
+		<aop:advisor pointcut-ref="transService" advice-ref="txAdvice" />
+	</aop:config>
+	<!-- 配置SqlSessionFactoryBean -->
+	<bean id="mySqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="typeAliasesPackage" value="per.sl.appsys.pojo"></property>
+		<!-- 引用MyBatis配置文件中的配置 -->
+		<property name="configLocation" value="classpath:mybatis-config.xml" />
+		<!-- 配置mapper位置 ,若xml和接口在一个包中且同名则不用显示配置,路径必须用'/'不能用'.' -->
+		<property name="mapperLocations" value="classpath:per/sl/appsys/mapper/*Mapper.xml" />
+	</bean>
+	<!-- 配置DAO,自动生成DAO实现 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="per.sl.appsys.dao" />
+		<!-- 必须显示配置sqlSessionFactoryBeanName,否者属性文件还没加载 -->
+		<property name="sqlSessionFactoryBeanName" value="mySqlSessionFactory" />
+	</bean>
+	<!-- Mybatis通用Mapper -->
+	<bean class="tk.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="per.**.mapper" />
+		<property name="properties">
+			<value>
+				mappers=tk.mybatis.mapper.common.Mapper
+			</value>
+		</property>
+	</bean>
+	<!-- 通用Mapper扫描包 -->
+	<bean class="tk.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="per.**.mapper" />
+		<property name="markerInterface" value="tk.mybatis.mapper.common.Mapper" />
+	</bean>
+</beans>
