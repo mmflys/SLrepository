@@ -1,2 +1,1 @@
-# SLrepository
-Hello everyone...
+### ssm,ssh 模版配置文件
