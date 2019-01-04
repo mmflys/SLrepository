@@ -1,0 +1,41 @@
+<!--
+  ~ Hibernate, Relational Persistence for Idiomatic Java
+  ~
+  ~ License: GNU Lesser General Public License (LGPL), version 2.1 or later.
+  ~ See the lgpl.txt file in the root directory or <http://www.gnu.org/licenses/lgpl-2.1.html>.
+  -->
+<!DOCTYPE hibernate-configuration PUBLIC
+	"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+	"http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+<session-factory>
+	<!-- 数据库url -->
+	<property name="connection.url">
+		jdbc:oracle:thin:@127.0.0.1:1521:orcl
+	</property>
+	<!-- 数据库用户 -->
+	<property name="connection.username">c##sl</property>
+	<!-- 数据库密码 -->
+	<property name="connection.password">sl</property>
+	<!-- 数据库JDBC驱动 -->
+	<property name="connection.driver_class">
+		oracle.jdbc.driver.OracleDriver
+	</property>
+	<!-- 每个数据库都有其对应的方言(Dialect)( ′◔ ‸◔`)陪陪其平台特性 -->
+	<property name="dialect">
+	   org.hibernate.dialect.Oracle10gDialect
+	</property>
+	<!-- 指定当前session范围和上下文 -->
+	<property name="current_session_context_class">thread</property>
+	<!-- 是否将运行期生成的SQL输出到日志以供调试 -->
+	<!-- <property name="show_sql">true</property> -->
+	<!-- 是否格式化SQL -->
+	<property name="format_sql">true</property>
+	<!-- mapper位置,用注解配置就用class,否则resource -->
+	<mapping class="per.sl.hb.pojo.Dept" />
+	<mapping class="per.sl.hb.pojo.Emp" />
+
+
+</session-factory>
+</hibernate-configuration>

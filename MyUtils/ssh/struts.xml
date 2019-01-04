@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE struts PUBLIC
+    "-//Apache Software Foundation//DTD Struts Configuration 2.5//EN"
+    "http://struts.apache.org/dtds/struts-2.5.dtd">
+<struts>
+	<constant name="struts.ui.theme" value="simple"></constant>
+	<!-- spring为action自动装配内部bean策略 -->
+	<constant name="struts.objectFactory.sprg,3wing.autoWire" value="type"></constant>
+	<!-- 文件上传临时文件夹 -->
+	<constant name="struts.multipart.saveDir" value="/tmp"></constant>
+	<package name="dept" namespace="/" extends="struts-default,json-default">
+	   <default-action-ref name="index"/>
+	   <action name="index">
+	       <result>/index.jsp</result>
+	   </action>
+	   <action name="login" class="deptAction" method="login">
+	       <result name="login_success">/index.jsp</result>
+	       <result name="login_input">/index.jsp</result>  
+	   </action>
+	   <!-- 返回json格式数据 -->
+	   <action name="paging" class="deptAction" method="paging">
+	       <result name="json" type="json">
+	           <!-- 设置序列化参数 -->
+	           <param name="root">depts</param>
+	       </result>
+	   </action>
+	   <!-- 在spring中配置action bean -->
+	  <!--  <action name="actionName" class="actionBeanName"></action> -->
+    </package>
+
+	<package name="user" namespace="/user" extends="struts-default">
+	   <interceptors>
+	       <interceptor name="timer" class="cn.struts.interceptor.TimerInterceptor"></interceptor>
+	   </interceptors>
+	   <action name="login" class="cn.struts.action.LoginAction">
+	       <result>/index.jsp</result>
+	       <interceptor-ref name="timer"></interceptor-ref>
+	   </action>
+	   <!-- 文件上传 -->
+	   <action name="fileUpload" class="cn.struts.action.FileUploadAction">
+	       <param name="savePath">/upload</param>
+	       <result>/index.jsp</result>
+	   </action>
+	   <!-- 文件下载 -->
+	   <action name="fileDownload" class="cn.struts.action.DownloadFileAction">
+	       <!-- 文件目录 -->
+	       <param name="inputPath">/upload</param>
+	       <result type="stream">
+	           <param name="contentType">application/octet-stream</param>
+	           <!-- 输入流属性名 -->
+	           <param name="inputName">inputStream</param>
+	           <param name="contentDisposition">
+	               attachment;filename="${fileName}"
+	           </param>
+	           <param name="bufferSize">4096</param>
+	       </result>
+	   </action>
+	</package>
+	<!-- 登录验证拦截 -->
+	<package name="loginValidate" namespace="/login" extends="struts-default">
+	   <interceptors>
+	       <interceptor name="login" class="cn.struts.interceptor.LoginValidateInterceptor"></interceptor>
+	       <interceptor-stack name="myStack">
+	           <interceptor-ref name="login"></interceptor-ref>
+	           <interceptor-ref name="defaultStack"></interceptor-ref>
+	       </interceptor-stack>
+	   </interceptors>
+	   <default-interceptor-ref name="myStack"></default-interceptor-ref>
+	   <default-action-ref name=""></default-action-ref>
+	   <global-results>
+	       <result name="login">/login.jsp</result>
+	   </global-results>
+	</package>
+</struts>
